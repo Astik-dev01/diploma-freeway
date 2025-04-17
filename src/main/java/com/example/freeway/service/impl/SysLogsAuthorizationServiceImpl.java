@@ -1,8 +1,8 @@
 package com.example.freeway.service.impl;
 
 
-import com.example.freeway.db.entity.sys.SysLogAuthorization;
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysLogAuthorization;
+import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.db.repository.SysLogAuthorizationRepository;
 import com.example.freeway.service.SysLogAuthorizationService;
 import lombok.RequiredArgsConstructor;

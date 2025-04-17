@@ -1,4 +1,4 @@
-package com.example.freeway.db.entity.sys;
+package com.example.freeway.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,6 +1,6 @@
 package com.example.freeway.model.role.response;
 
-import com.example.freeway.db.entity.sys.SysRole;
+import com.example.freeway.db.entity.SysRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;

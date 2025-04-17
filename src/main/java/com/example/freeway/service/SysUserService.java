@@ -1,6 +1,6 @@
 package com.example.freeway.service;
 
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.model.user.filter.UserFilterDto;
 import com.example.freeway.model.user.request.AdminChangePasswordRequestDto;
 import com.example.freeway.model.user.request.ResetPasswordRequestDto;

@@ -1,7 +1,7 @@
 package com.example.freeway.service;
 
 
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysUser;
 
 public interface SysLogAuthorizationService {
 

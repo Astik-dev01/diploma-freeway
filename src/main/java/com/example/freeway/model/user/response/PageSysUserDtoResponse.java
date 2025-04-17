@@ -1,6 +1,6 @@
 package com.example.freeway.model.user.response;
 
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.model.BasePageResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 

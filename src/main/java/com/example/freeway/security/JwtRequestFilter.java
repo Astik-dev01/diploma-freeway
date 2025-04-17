@@ -80,7 +80,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 uri.startsWith(appContextPath + SecurityConfig.Constants.PUBLIC_ENDPOINTS[11]) ||
                 uri.startsWith(appContextPath + SecurityConfig.Constants.PUBLIC_ENDPOINTS[12]) ||
                 uri.startsWith(appContextPath + SecurityConfig.Constants.PUBLIC_ENDPOINTS[13]) ||
-                uri.startsWith(appContextPath + SecurityConfig.Constants.PUBLIC_ENDPOINTS[14]) ;}
+                uri.startsWith(appContextPath + SecurityConfig.Constants.PUBLIC_ENDPOINTS[14]) ||
+                uri.startsWith(appContextPath + SecurityConfig.Constants.PUBLIC_ENDPOINTS[15]) ||
+                uri.startsWith(appContextPath + SecurityConfig.Constants.PUBLIC_ENDPOINTS[16]) ;
+    }
 
     private void authenticateUser(String jwt, HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {

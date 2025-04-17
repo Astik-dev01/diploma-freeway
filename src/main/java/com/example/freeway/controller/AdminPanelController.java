@@ -1,6 +1,6 @@
 package com.example.freeway.controller;
 
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.db.repository.ErrorMessageRepository;
 import com.example.freeway.model.AuthenticationRequest;
 import com.example.freeway.model.BaseResponse;
@@ -189,9 +189,9 @@ public class AdminPanelController {
         if (userFromToken.isPresent()) {
             SysUser user = userFromToken.get();
 
-            if (!user.isEmailVerified()) {
-                return accountNotActivated();
-            }
+//            if (!user.isEmailVerified()) {
+//                return accountNotActivated();
+//            }
 
             if (user.isBanned() || (user.getTemporaryAccessUntilTime() != null && user.getTemporaryAccessUntilTime().before(new Date())))
                 return accessDenied();

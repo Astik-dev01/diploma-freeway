@@ -1,7 +1,7 @@
 package com.example.freeway.service.impl;
 
 import com.example.freeway.controller.BaseController;
-import com.example.freeway.db.entity.sys.SysRole;
+import com.example.freeway.db.entity.SysRole;
 import com.example.freeway.db.repository.SysRoleRepository;
 import com.example.freeway.db.repository.specification.RoleSpecification;
 import com.example.freeway.exception.NotFoundException;

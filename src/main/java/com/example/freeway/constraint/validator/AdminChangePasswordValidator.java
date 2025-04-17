@@ -1,8 +1,8 @@
 package com.example.freeway.constraint.validator;
 
 import com.example.freeway.constraint.AdminChangePassword;
-import com.example.freeway.db.entity.sys.SysRole;
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysRole;
+import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.db.repository.SysUserRepository;
 import com.example.freeway.model.user.request.AdminChangePasswordRequestDto;
 import jakarta.validation.ConstraintValidator;

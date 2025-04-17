@@ -1,6 +1,6 @@
 package com.example.freeway.db.repository.specification;
 
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.model.user.filter.UserFilterDto;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

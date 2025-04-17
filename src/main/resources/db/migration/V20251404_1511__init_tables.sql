@@ -1,3 +1,12 @@
+-- Таблица факультетов
+CREATE TABLE faculties
+(
+    id      BIGSERIAL PRIMARY KEY,
+    name    VARCHAR(255) NOT NULL UNIQUE,
+    deleted BOOLEAN DEFAULT FALSE
+);
+
+
 -- Роли
 CREATE TABLE IF NOT EXISTS sys_roles
 (
@@ -37,6 +46,91 @@ CREATE TABLE IF NOT EXISTS sys_users
     edited_time                 TIMESTAMP                              NULL,
     created_time                TIMESTAMP    DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT unique_sys_user_phone UNIQUE (phone_number)
+);
+
+-- Таблица student_details
+CREATE TABLE student_details
+(
+    id         BIGSERIAL PRIMARY KEY,
+
+    user_id    BIGINT       NOT NULL UNIQUE,
+    CONSTRAINT fk_student_user FOREIGN KEY (user_id) REFERENCES sys_users (id) ON DELETE CASCADE,
+
+    student_id VARCHAR(255) NOT NULL UNIQUE,
+
+    faculty_id BIGINT       NOT NULL,
+    CONSTRAINT fk_student_faculty FOREIGN KEY (faculty_id) REFERENCES faculties (id),
+
+    advisor_id BIGINT       NOT NULL,
+    CONSTRAINT fk_student_advisor FOREIGN KEY (advisor_id) REFERENCES sys_users (id),
+
+    status     VARCHAR(50)  NOT NULL,
+
+    balance    NUMERIC(19, 2)
+);
+
+-- Таблица заявок на свободное посещение
+CREATE TABLE free_visit_applications
+(
+    id           BIGSERIAL PRIMARY KEY,
+    student_id   BIGINT                              NOT NULL,
+    comment      TEXT,
+    status       VARCHAR(50)                         NOT NULL,
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    edited_time  TIMESTAMP,
+
+    CONSTRAINT fk_free_visit_application_student
+        FOREIGN KEY (student_id)
+            REFERENCES student_details (id)
+            ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS free_visit_approvals
+(
+    id             BIGSERIAL PRIMARY KEY,
+    application_id BIGINT                              NOT NULL,
+    teacher_id     BIGINT                              NOT NULL,
+    status         VARCHAR(50)                         NOT NULL,
+    comment        TEXT,
+    created_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    edited_time    TIMESTAMP,
+
+    CONSTRAINT fk_approval_application FOREIGN KEY (application_id)
+        REFERENCES free_visit_applications (id) ON DELETE CASCADE,
+
+    CONSTRAINT fk_approval_teacher FOREIGN KEY (teacher_id)
+        REFERENCES sys_users (id) ON DELETE CASCADE
+);
+CREATE TABLE meeting
+(
+    id           BIGSERIAL PRIMARY KEY,
+
+    student_id   BIGINT                              NOT NULL REFERENCES sys_users (id) ON DELETE SET NULL,
+    teacher_id   BIGINT                              NOT NULL REFERENCES sys_users (id) ON DELETE SET NULL,
+    created_by   BIGINT                              NOT NULL REFERENCES sys_users (id) ON DELETE SET NULL,
+
+    comment      TEXT,
+    topic        TEXT,
+
+    start_time   TIMESTAMP                           NOT NULL,
+    end_time     TIMESTAMP                           NOT NULL,
+
+    status       VARCHAR(20)                         NOT NULL, -- Значения: PENDING, APPROVED, REJECTED
+
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+-- Таблица вложений (документов) к заявке
+CREATE TABLE free_visit_attachments
+(
+    id             BIGSERIAL PRIMARY KEY,
+    application_id BIGINT                              NOT NULL UNIQUE,
+    file_path      TEXT                                NOT NULL,
+    content_type   VARCHAR(255),
+    created_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+    CONSTRAINT fk_free_visit_attachment_application
+        FOREIGN KEY (application_id)
+            REFERENCES free_visit_applications (id)
+            ON DELETE CASCADE
 );
 
 -- Таблица токенов сброса пароля
