@@ -1,7 +1,7 @@
 package com.example.freeway.db.repository;
 
-import com.example.freeway.db.entity.sys.PasswordResetToken;
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.PasswordResetToken;
+import com.example.freeway.db.entity.SysUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

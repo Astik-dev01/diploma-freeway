@@ -1,6 +1,5 @@
 package com.example.freeway.db.entity;
 
-import com.example.freeway.db.entity.sys.SysUser;
 import com.example.freeway.db.enums.HttpMethodType;
 import com.example.freeway.db.enums.ProcessObjectType;
 import jakarta.persistence.*;

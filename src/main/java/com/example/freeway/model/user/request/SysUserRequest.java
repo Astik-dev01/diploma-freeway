@@ -3,11 +3,13 @@ package com.example.freeway.model.user.request;
 import com.example.freeway.constraint.FutureDate;
 import com.example.freeway.constraint.ValidUser;
 import com.example.freeway.db.enums.Gender;
+import com.example.freeway.db.enums.StudentStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -47,5 +49,20 @@ public class SysUserRequest {
 
     @Schema(description = "Номер телефона пользователя", example = "+996111222333")
     String phone;
+
+    @Schema(description = "Номер студенческого билета (только для студентов)")
+    String studentId;
+
+    @Schema(description = "ID факультета (только для студентов)")
+    Long facultyId;
+
+    @Schema(description = "ID куратора/наставника (только для студентов)")
+    Long advisorId;
+
+    @Schema(description = "Статус студента", implementation = StudentStatus.class)
+    StudentStatus status;
+
+    @Schema(description = "Баланс оплаты обучения")
+    BigDecimal balance;
 
 }

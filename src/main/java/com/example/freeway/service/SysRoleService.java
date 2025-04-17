@@ -1,6 +1,6 @@
 package com.example.freeway.service;
 
-import com.example.freeway.db.entity.sys.SysRole;
+import com.example.freeway.db.entity.SysRole;
 import com.example.freeway.model.role.filter.RoleFilter;
 import com.example.freeway.model.role.request.SysRoleRequest;
 import com.example.freeway.model.role.response.PageSysRoleResponse;

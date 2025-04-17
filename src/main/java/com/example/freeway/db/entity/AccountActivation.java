@@ -1,6 +1,5 @@
 package com.example.freeway.db.entity;
 
-import com.example.freeway.db.entity.sys.SysUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

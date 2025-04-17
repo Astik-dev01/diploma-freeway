@@ -100,12 +100,14 @@ public class SecurityConfig {
                 "/webjars/**",
                 "/user/activate",
                 "/user/create",
-                "/role/**",
+                "/role/get-all",
                 "/user/forgot-password",
                 "/user/reset-password",
                 "/user/reset-password/{token}",
                 "/files",
-                "/files/**"
+                "/files/**",
+                "/faculty/get-all",
+                "/user/get-all"
         };
     }
 

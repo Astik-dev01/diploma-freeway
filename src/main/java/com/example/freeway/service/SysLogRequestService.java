@@ -1,6 +1,6 @@
 package com.example.freeway.service;
 
-import com.example.freeway.db.entity.sys.SysLogRequest;
+import com.example.freeway.db.entity.SysLogRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface SysLogRequestService {

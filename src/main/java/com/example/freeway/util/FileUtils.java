@@ -2,6 +2,7 @@ package com.example.freeway.util;
 
 import com.example.freeway.exception.BadRequestException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import java.util.Base64;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class FileUtils {
     public final String basePath = System.getProperty("user.dir") + File.separator + "files";
 //    @Value("${server.servlet.context-path}")
@@ -45,7 +47,6 @@ public class FileUtils {
 
     public String saveMultipartFileWithResize(MultipartFile file) {
         try {
-            // Получаем расширение файла
             String originalFileName = file.getOriginalFilename();
             String fileExt = "";
 
@@ -55,15 +56,13 @@ public class FileUtils {
 
             checkFileExtOrException(fileExt);
 
-            // Генерация имени файла
             String baseFileName = DateUtils.formatToString(new Date(), DateUtils.FORMAT_DD_MM_YYYY_HH_MM_SS_SSS_FOR_PATH);
             String fullFileName = baseFileName + "." + fileExt;
 
-            // Формируем путь по дате
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
             String formattedDate = LocalDate.now().format(formatter);
-
             String[] dateParts = formattedDate.split("/");
+
             String packagePath = String.format("%s/%s/%s", dateParts[0], dateParts[1], dateParts[2]);
             String fullPath = basePath + File.separator + packagePath;
 
@@ -72,27 +71,11 @@ public class FileUtils {
                 throw new BadRequestException("error.create_directory");
             }
 
-            // Оригинальный файл
-            File originalFile = new File(directory, fullFileName);
-            file.transferTo(originalFile);
+            File targetFile = new File(directory, fullFileName);
+            file.transferTo(targetFile);
 
-            // Загружаем оригинальное изображение
-            BufferedImage originalImage = ImageIO.read(originalFile);
-
-            // Миниатюра 170x126
-            File thumbDir = new File(basePath + "/mini/" + packagePath);
-            if (!thumbDir.exists()) thumbDir.mkdirs();
-            File thumbFile = new File(thumbDir, fullFileName);
-            Thumbnails.of(originalImage).size(170, 126).outputFormat(fileExt).toFile(thumbFile);
-
-// Увеличенное 420x380
-            File largeDir = new File(basePath + "/large/" + packagePath);
-            if (!largeDir.exists()) largeDir.mkdirs();
-            File largeFile = new File(largeDir, fullFileName);
-            Thumbnails.of(originalImage).size(420, 380).outputFormat(fileExt).toFile(largeFile);
-
-            // Возвращаем путь к оригиналу (остальные можно собрать по шаблону при выводе)
             return String.format("%s/%s", packagePath, fullFileName);
+
         } catch (IOException e) {
             throw new BadRequestException("error.file_save_failed: " + e.getMessage());
         }
@@ -239,12 +222,19 @@ public class FileUtils {
      *
      * @param fileExt Расширение
      */
+//    private static void checkFileExtOrException(String fileExt) {
+//        if (!fileExt.equalsIgnoreCase("png") &&
+//                !fileExt.equalsIgnoreCase("jpg") &&
+//                !fileExt.equalsIgnoreCase("jpeg") &&
+//                !fileExt.equalsIgnoreCase("pdf") &&) {
+//            !fileExt.equalsIgnoreCase("")
+//            throw new BadRequestException("error.file_body.unacceptable.format"); //TODO Добавить локализацию "Не поддерживаемый формат файла"
+//        }
+//    }
     private static void checkFileExtOrException(String fileExt) {
-        if (!fileExt.equalsIgnoreCase("png") &&
-                !fileExt.equalsIgnoreCase("jpg") &&
-                !fileExt.equalsIgnoreCase("jpeg") &&
-                !fileExt.equalsIgnoreCase("pdf")) {
-            throw new BadRequestException("error.file_body.unacceptable.format"); //TODO Добавить локализацию "Не поддерживаемый формат файла"
+        if (fileExt == null || fileExt.isBlank()) {
+            log.warn("Файл без расширения загружается");
         }
+        // Разрешаем любые расширения
     }
 }

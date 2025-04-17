@@ -1,6 +1,6 @@
 package com.example.freeway.db.repository.specification;
 
-import com.example.freeway.db.entity.sys.SysRole;
+import com.example.freeway.db.entity.SysRole;
 import com.example.freeway.model.role.filter.RoleFilter;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -29,9 +29,9 @@ public class RoleSpecification implements Specification<SysRole> {
             predicates.add(cb.isTrue(root.get("deleted")));
         }
 
-        if (Boolean.TRUE.equals(filter.getRegistration())) {
-            predicates.add(root.get("alias").in(List.of("FARMER", "SUPPLIER")));
-        }
+//        if (Boolean.TRUE.equals(filter.getRegistration())) {
+//            predicates.add(root.get("alias").in(List.of("FARMER", "SUPPLIER")));
+//        }
 
 
         return cb.and(predicates.toArray(new Predicate[0]));

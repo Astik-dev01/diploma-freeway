@@ -1,6 +1,6 @@
 package com.example.freeway.model.user.response;
 
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.db.enums.Gender;
 import com.example.freeway.model.role.response.SysRoleResponseDto;
 import com.fasterxml.jackson.annotation.JsonFormat;

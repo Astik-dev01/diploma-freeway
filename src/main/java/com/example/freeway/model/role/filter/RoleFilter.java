@@ -11,7 +11,7 @@ public class RoleFilter extends BasePageRequest {
     @Schema(description = "Доступные/Удаленные роли", example = "false")
     Boolean deleted = false;
 
-    @Schema(description = "Регистрация/Добавление", example = "true")
-    Boolean registration = false;
+//    @Schema(description = "Регистрация/Добавление", example = "true")
+//    Boolean registration = false;
 
 }

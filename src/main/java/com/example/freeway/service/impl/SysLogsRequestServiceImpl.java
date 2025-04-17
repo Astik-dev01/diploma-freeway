@@ -1,7 +1,7 @@
 package com.example.freeway.service.impl;
 
 import com.example.freeway.controller.BaseController;
-import com.example.freeway.db.entity.sys.SysLogRequest;
+import com.example.freeway.db.entity.SysLogRequest;
 import com.example.freeway.db.repository.SysLogRequestRepository;
 import com.example.freeway.service.SysLogRequestService;
 import jakarta.servlet.http.HttpServletRequest;

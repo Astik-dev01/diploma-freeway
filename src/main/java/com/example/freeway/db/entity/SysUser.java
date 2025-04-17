@@ -1,4 +1,4 @@
-package com.example.freeway.db.entity.sys;
+package com.example.freeway.db.entity;
 
 import com.example.freeway.db.enums.Gender;
 import jakarta.persistence.*;
@@ -25,6 +25,7 @@ public class SysUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     Long id;
+
 
     @Column(name = "second_name", nullable = false)
     String secondName;

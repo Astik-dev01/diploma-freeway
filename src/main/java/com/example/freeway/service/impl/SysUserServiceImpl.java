@@ -1,14 +1,8 @@
 package com.example.freeway.service.impl;
 
 import com.example.freeway.controller.BaseController;
-import com.example.freeway.db.entity.AccountActivation;
-import com.example.freeway.db.entity.sys.PasswordResetToken;
-import com.example.freeway.db.entity.sys.SysRole;
-import com.example.freeway.db.entity.sys.SysUser;
-import com.example.freeway.db.repository.AccountActivationRepository;
-import com.example.freeway.db.repository.PasswordResetTokenRepository;
-import com.example.freeway.db.repository.SysRoleRepository;
-import com.example.freeway.db.repository.SysUserRepository;
+import com.example.freeway.db.entity.*;
+import com.example.freeway.db.repository.*;
 import com.example.freeway.db.repository.specification.SysUserSpecification;
 import com.example.freeway.exception.BadRequestException;
 import com.example.freeway.exception.NotFoundException;
@@ -51,6 +45,9 @@ public class SysUserServiceImpl implements SysUserService {
     private final SysRoleRepository rolesRepository;
     private final SysLogRequestService logService;
     private final MailSender mailSender;
+
+    private final FacultyRepository facultyRepository;
+    private final StudentDetailsRepository studentDetailsRepository;
 
     private final PasswordResetTokenRepository tokenRepository;
 
@@ -120,11 +117,33 @@ public class SysUserServiceImpl implements SysUserService {
         user.setRoles(new HashSet<>(roles));
 
         repository.save(user);
+        boolean isStudent = roles.stream()
+                .anyMatch(role -> role.getAlias().equals("STUDENT"));
+        if (isStudent) {
+            if (userDto.getStudentId() != null) {
+                Faculty faculty = facultyRepository.findById(userDto.getFacultyId())
+                        .orElseThrow(() -> new NotFoundException("Факультет не найден"));
 
-        var accountActivation = new AccountActivation(user);
-        accountActivationRepository.save(accountActivation);
+                SysUser advisor = repository.findById(userDto.getAdvisorId())
+                        .orElseThrow(() -> new NotFoundException("Advisor не найден"));
 
-        mailSender.sendActivationLink(user.getEmail(), accountActivation.getActivationCode());
+                StudentDetails studentDetails = StudentDetails.builder()
+                        .user(user)
+                        .studentId(userDto.getStudentId())
+                        .faculty(faculty)
+                        .advisor(advisor)
+                        .status(userDto.getStatus())
+                        .balance(userDto.getBalance())
+                        .build();
+
+                studentDetailsRepository.save(studentDetails);
+            }
+        }
+
+//        var accountActivation = new AccountActivation(user);
+//        accountActivationRepository.save(accountActivation);
+//
+//        mailSender.sendActivationLink(user.getEmail(), accountActivation.getActivationCode());
 
         userDto.setPassword(null);
         logService.saveSuccessToDb(

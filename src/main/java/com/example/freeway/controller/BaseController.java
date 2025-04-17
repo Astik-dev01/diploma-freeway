@@ -1,6 +1,6 @@
 package com.example.freeway.controller;
 
-import com.example.freeway.db.entity.sys.SysUser;
+import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.db.repository.SysUserRepository;
 import com.example.freeway.exception.FTRuntimeException;
 import com.example.freeway.model.BaseResponse;

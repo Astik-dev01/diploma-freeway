@@ -29,27 +29,6 @@ public class SysRoleController {
 
     private final SysRoleService service;
 
-    @GetMapping("/{id}")
-    @Operation(
-            summary = "Получить роль по ID",
-            responses = @ApiResponse(content = @Content(schema = @Schema(implementation = SysRoleResponseDto.class))),
-            parameters = @Parameter(
-                    required = true,
-                    description = "JWT токен",
-                    in = ParameterIn.HEADER,
-                    name = "Authorization",
-                    schema = @Schema(type = "string", format = "jwt"))
-    )
-    ResponseEntity<BaseResponse> findById(@Parameter(description = "ID Роли", required = true) @PathVariable Long id) {
-        return new ResponseEntity<>(
-                BaseResponse.builder()
-                        .success(BaseController.Constants.SUCCESS)
-                        .msg(null)
-                        .res(SysRoleResponseDto.from(service.findById(id)))
-                        .build(), HttpStatus.OK
-        );
-    }
-
     @PostMapping("/get-all")
     @Operation(
             summary = "Получить список текущих доступных ролей",
@@ -74,6 +53,29 @@ public class SysRoleController {
                         .build(), HttpStatus.OK
         );
     }
+
+    @GetMapping("/{id}")
+    @Operation(
+            summary = "Получить роль по ID",
+            responses = @ApiResponse(content = @Content(schema = @Schema(implementation = SysRoleResponseDto.class))),
+            parameters = @Parameter(
+                    required = true,
+                    description = "JWT токен",
+                    in = ParameterIn.HEADER,
+                    name = "Authorization",
+                    schema = @Schema(type = "string", format = "jwt"))
+    )
+    ResponseEntity<BaseResponse> findById(@Parameter(description = "ID Роли", required = true) @PathVariable Long id) {
+        return new ResponseEntity<>(
+                BaseResponse.builder()
+                        .success(BaseController.Constants.SUCCESS)
+                        .msg(null)
+                        .res(SysRoleResponseDto.from(service.findById(id)))
+                        .build(), HttpStatus.OK
+        );
+    }
+
+
 
 
     @PostMapping()
