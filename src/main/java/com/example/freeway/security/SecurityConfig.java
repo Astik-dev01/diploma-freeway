@@ -107,7 +107,8 @@ public class SecurityConfig {
                 "/files",
                 "/files/**",
                 "/faculty/get-all",
-                "/user/get-all"
+                "/user/get-all",
+                "/websocket-connection/**"
         };
     }
 

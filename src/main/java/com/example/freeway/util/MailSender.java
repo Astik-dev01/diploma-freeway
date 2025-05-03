@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,36 @@ public class MailSender {
 
     @Value("${reset.password.link}")
     private String resetLink;
+
+    public void sendSimple(String to, String subject, String text) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(sender);
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
+            emailSender.send(message);
+        } catch (Exception e) {
+            log.error("Не удалось отправить email студенту: {}", e.getMessage());
+        }
+    }
+
+    public void sendNotification(String mail, String subject, String body) {
+        try {
+            MimeMessage mimeMessage = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+
+            helper.setFrom(sender);
+            helper.setTo(mail);
+            helper.setText(body.replace("\n", "<br/>"), true); // HTML
+            helper.setSubject(subject);
+
+            emailSender.send(mimeMessage);
+
+        } catch (Exception e) {
+            log.error("Ошибка при отправке уведомления на {}", mail, e);
+        }
+    }
 
     public void sendActivationLink(String mail, UUID code) {
         try {

@@ -13,6 +13,8 @@ import com.example.freeway.model.freeVisitApplication.FreeVisitApplicationRespon
 import com.example.freeway.model.freeVisitApplication.PageFreeVisitApplicationResponse;
 import com.example.freeway.service.FreeVisitApplicationService;
 import com.example.freeway.util.FileUtils;
+import com.example.freeway.util.MailSender;
+import com.example.freeway.util.NotificationText;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,6 +39,8 @@ public class FreeVisitApplicationServiceImpl implements FreeVisitApplicationServ
     private final FreeVisitApprovalRepository freeVisitApprovalRepository;
     private final SysUserRepository sysUserRepository;
     private final FreeVisitApplicationRepository freeVisitApplicationRepository;
+    private final MailSender mailSender;
+    private final NotificationServiceImpl notificationService;
 
     @Override
     @Transactional
@@ -53,17 +57,16 @@ public class FreeVisitApplicationServiceImpl implements FreeVisitApplicationServ
 
         entity = repository.save(entity);
 
-        // Сохраняем справку
         String path = fileUtils.saveMultipartFileWithResize(file);
         FreeVisitAttachment attachment = FreeVisitAttachment.builder()
                 .filePath(path)
                 .application(entity)
                 .build();
         freeVisitAttachmentRepository.save(attachment);
+
         entity.setDocument(attachment);
         entity = repository.save(entity);
 
-        // 🔁 Находим всех преподавателей (с ролью TEACHER) и создаём записи согласования
         List<SysUser> teachers = sysUserRepository.getAllByRolesAlias("TEACHER");
         for (SysUser teacher : teachers) {
             FreeVisitApproval approval = FreeVisitApproval.builder()
@@ -72,6 +75,23 @@ public class FreeVisitApplicationServiceImpl implements FreeVisitApplicationServ
                     .status(FreeVisitApprovalStatus.PENDING)
                     .build();
             freeVisitApprovalRepository.save(approval);
+
+            String message = String.format(NotificationText.APPLICATION_CREATED,
+                    student.getUser().getSecondName(),
+                    student.getUser().getName(),
+                    dto.getComment() != null ? dto.getComment() : "Комментарий не указан"
+            );
+
+            mailSender.sendNotification(
+                    teacher.getEmail(),
+                    "Новая заявка на свободное посещение",
+                    message
+            );
+            notificationService.notifyUser(
+                    teacher.getId(),
+                    "Новая заявка на свободное посещение",
+                    "Студент " + student.getUser().getSecondName() + " " + student.getUser().getName() + " оставил заявку"
+            );
         }
 
         return FreeVisitApplicationResponseDto.from(entity, fileUtils);
