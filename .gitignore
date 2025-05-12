@@ -36,6 +36,16 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
-
+/files/
 ### VS Code ###
 .vscode/
+# Логи
+*.log
+*.log.*
+
+# macOS
+.DS_Store
+
+# Сборочные артефакты (если есть)
+*.jar
+/build/
