@@ -16,7 +16,11 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-
+# Java build artifacts
+/build/
+/*.jar
+*.class
+*.log
 ### IntelliJ IDEA ###
 .idea
 *.iws
