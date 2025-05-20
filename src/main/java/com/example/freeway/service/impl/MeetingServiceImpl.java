@@ -51,7 +51,7 @@ public class MeetingServiceImpl implements MeetingService {
         Meeting meeting = Meeting.builder()
                 .student(student)
                 .teacher(teacher)
-                .createdBy(currentUser) // 👈 добавляем создателя
+                .createdBy(currentUser)
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .topic(dto.getTopic())

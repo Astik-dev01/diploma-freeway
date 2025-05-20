@@ -39,10 +39,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/user/admin/**").hasAuthority("SUPER_ADMIN")
+
 
                         .requestMatchers(Constants.PUBLIC_ENDPOINTS).permitAll()
 
@@ -107,7 +109,8 @@ public class SecurityConfig {
                 "/files",
                 "/files/**",
                 "/faculty/get-all",
-                "/user/get-all"
+                "/user/get-all",
+                "/freeway/websocket-connection/**"
         };
     }
 

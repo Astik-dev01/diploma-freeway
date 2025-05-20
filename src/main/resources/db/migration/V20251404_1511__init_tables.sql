@@ -6,7 +6,14 @@ CREATE TABLE faculties
     deleted BOOLEAN DEFAULT FALSE
 );
 
-
+CREATE TABLE chat_message (
+                              id BIGSERIAL PRIMARY KEY,
+                              sender_id BIGINT NOT NULL,
+                              recipient_id BIGINT NOT NULL,
+                              content TEXT NOT NULL,
+                              timestamp TIMESTAMP NOT NULL,
+                              status VARCHAR(20) NOT NULL CHECK (status IN ('SENT', 'DELIVERED', 'READ'))
+);
 -- Роли
 CREATE TABLE IF NOT EXISTS sys_roles
 (
