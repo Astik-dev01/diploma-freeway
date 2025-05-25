@@ -18,6 +18,7 @@ import com.example.freeway.model.freeVisitApproval.FreeVisitApprovalRequestDto;
 import com.example.freeway.model.freeVisitApproval.FreeVisitApprovalResponseDto;
 import com.example.freeway.model.freeVisitApproval.PageFreeVisitApprovalResponseDto;
 import com.example.freeway.service.FreeVisitApprovalService;
+import com.example.freeway.util.CustomMailSender;
 import com.example.freeway.util.FileUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,10 +34,11 @@ import java.util.stream.Collectors;
 public class FreeVisitApprovalServiceImpl implements FreeVisitApprovalService {
 
     private final FreeVisitApprovalRepository repository;
-    private final SysUserServiceImpl userService; // или SysUserService
+    private final SysUserServiceImpl userService;
     private final FreeVisitApplicationRepository applicationRepository;
     private final SysUserRepository sysUserRepository;
     private final FileUtils fileUtils;
+    private final CustomMailSender customMailSender;
 
 
     @Override
@@ -58,10 +58,8 @@ public class FreeVisitApprovalServiceImpl implements FreeVisitApprovalService {
     public PageFreeVisitApplicationResponse getApplicationsForCurrentTeacher(Pageable pageable) {
         SysUser teacher = userService.getFromContext();
 
-        // Получаем все согласования преподавателя
         Page<FreeVisitApproval> approvals = repository.findAllByTeacherId(teacher.getId(), pageable);
 
-        // Достаём связанные заявки
         List<FreeVisitApplication> applications = approvals.getContent().stream()
                 .map(FreeVisitApproval::getApplication)
                 .collect(Collectors.toList());
@@ -79,56 +77,39 @@ public class FreeVisitApprovalServiceImpl implements FreeVisitApprovalService {
         FreeVisitApplication application = applicationRepository.findById(dto.getApplicationId())
                 .orElseThrow(() -> new NotFoundException("Заявка не найдена"));
 
-        Optional<FreeVisitApproval> existing = repository.findByApplicationIdAndTeacherId(dto.getApplicationId(), teacher.getId());
+        FreeVisitApproval approval = repository.findByApplicationIdAndTeacherId(dto.getApplicationId(), teacher.getId())
+                .orElseThrow(() -> new BadRequestException("Вы не назначены для рассмотрения этой заявки"));
 
-        FreeVisitApproval approval;
-
-        if (existing.isPresent()) {
-            approval = existing.get();
-            if (approval.getStatus() != FreeVisitApprovalStatus.PENDING) {
-                throw new BadRequestException("Вы уже проголосовали по этой заявке");
-            }
-            // обновляем статус и комментарий
-            approval.setStatus(dto.getApproved() ? FreeVisitApprovalStatus.APPROVED : FreeVisitApprovalStatus.REJECTED);
-            approval.setComment(dto.getComment());
-        } else {
-            approval = FreeVisitApproval.builder()
-                    .application(application)
-                    .teacher(teacher)
-                    .status(dto.getApproved() ? FreeVisitApprovalStatus.APPROVED : FreeVisitApprovalStatus.REJECTED)
-                    .comment(dto.getComment())
-                    .build();
+        if (approval.getStatus() != FreeVisitApprovalStatus.PENDING) {
+            throw new BadRequestException("Вы уже проголосовали по этой заявке");
         }
 
-        repository.save(approval); // сохраняем либо обновлённую, либо новую
+        approval.setStatus(dto.getApproved() ? FreeVisitApprovalStatus.APPROVED : FreeVisitApprovalStatus.REJECTED);
+        approval.setComment(dto.getComment());
+        repository.save(approval);
 
-        // проверка: все ли проголосовали
-        List<SysUser> allTeachers = sysUserRepository.getAllByRolesAlias("TEACHER");
         List<FreeVisitApproval> allApprovals = repository.findAllByApplicationId(dto.getApplicationId());
 
-        Set<Long> votedTeacherIds = allApprovals.stream()
-                .filter(a -> a.getStatus() != FreeVisitApprovalStatus.PENDING)
-                .map(a -> a.getTeacher().getId())
-                .collect(Collectors.toSet());
-
         boolean allVoted = allApprovals.stream()
-                .filter(a -> a.getStatus() != FreeVisitApprovalStatus.PENDING)
-                .map(a -> a.getTeacher().getId())
-                .collect(Collectors.toSet())
-                .containsAll(
-                        allTeachers.stream().map(SysUser::getId).collect(Collectors.toSet())
-                );
+                .allMatch(a -> a.getStatus() != FreeVisitApprovalStatus.PENDING);
 
         if (allVoted) {
-            boolean allApproved = allApprovals.stream()
-                    .filter(a -> a.getStatus() != FreeVisitApprovalStatus.PENDING)
-                    .allMatch(a -> a.getStatus() == FreeVisitApprovalStatus.APPROVED);
+            long approvedCount = allApprovals.stream()
+                    .filter(a -> a.getStatus() == FreeVisitApprovalStatus.APPROVED)
+                    .count();
+            long total = allApprovals.size();
 
-            application.setStatus(allApproved
+            boolean majorityApproved = approvedCount > total / 2;
+
+            application.setStatus(majorityApproved
                     ? FreeVisitStatus.APPROVED_BY_TEACHERS
                     : FreeVisitStatus.REJECTED_BY_TEACHERS
             );
             applicationRepository.save(application);
+
+            SysUser student = application.getStudent().getUser();
+            customMailSender.sendFreeVisitStatusNotification(student,majorityApproved);
+
         }
 
         return FreeVisitApprovalResponseDto.from(approval);

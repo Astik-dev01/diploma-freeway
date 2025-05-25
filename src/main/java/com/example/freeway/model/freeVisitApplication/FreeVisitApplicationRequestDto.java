@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Data
 @Schema(description = "Запрос на создание заявки на свободное посещение")
 public class FreeVisitApplicationRequestDto {
@@ -13,5 +15,8 @@ public class FreeVisitApplicationRequestDto {
 
     @Schema(description = "Комментарий студента")
     String comment;
+
+    private List<Long> teacherIds;
+
 
 }

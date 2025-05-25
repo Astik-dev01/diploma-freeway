@@ -6,12 +6,14 @@ import com.example.freeway.db.enums.FreeVisitApprovalStatus;
 import com.example.freeway.db.enums.FreeVisitStatus;
 import com.example.freeway.db.repository.*;
 import com.example.freeway.db.repository.specification.FreeVisitApplicationSpecification;
+import com.example.freeway.exception.BadRequestException;
 import com.example.freeway.exception.NotFoundException;
 import com.example.freeway.model.freeVisitApplication.FreeVisitApplicationFilterRequestDto;
 import com.example.freeway.model.freeVisitApplication.FreeVisitApplicationRequestDto;
 import com.example.freeway.model.freeVisitApplication.FreeVisitApplicationResponseDto;
 import com.example.freeway.model.freeVisitApplication.PageFreeVisitApplicationResponse;
 import com.example.freeway.service.FreeVisitApplicationService;
+import com.example.freeway.util.CustomMailSender;
 import com.example.freeway.util.FileUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class FreeVisitApplicationServiceImpl implements FreeVisitApplicationServ
     private final FreeVisitApprovalRepository freeVisitApprovalRepository;
     private final SysUserRepository sysUserRepository;
     private final FreeVisitApplicationRepository freeVisitApplicationRepository;
+    private final CustomMailSender customMailSender;
 
     @Override
     @Transactional
@@ -44,6 +47,20 @@ public class FreeVisitApplicationServiceImpl implements FreeVisitApplicationServ
         SysUser user = service.getFromContext();
         StudentDetails student = studentDetailsRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new NotFoundException("Студент не найден"));
+
+        if (dto.getTeacherIds() == null || dto.getTeacherIds().isEmpty()) {
+            throw new BadRequestException("Выберите хотя бы одного преподавателя");
+        }
+
+        List<SysUser> selectedTeachers = sysUserRepository.findAllById(dto.getTeacherIds());
+
+        boolean allAreTeachers = selectedTeachers.stream()
+                .allMatch(u -> u.getRoles().stream()
+                        .anyMatch(role -> role.getAlias().equalsIgnoreCase("TEACHER")));
+
+        if (!allAreTeachers || selectedTeachers.size() != dto.getTeacherIds().size()) {
+            throw new BadRequestException("Некоторые выбранные пользователи не являются преподавателями");
+        }
 
         FreeVisitApplication entity = FreeVisitApplication.builder()
                 .student(student)
@@ -53,7 +70,6 @@ public class FreeVisitApplicationServiceImpl implements FreeVisitApplicationServ
 
         entity = repository.save(entity);
 
-        // Сохраняем справку
         String path = fileUtils.saveMultipartFileWithResize(file);
         FreeVisitAttachment attachment = FreeVisitAttachment.builder()
                 .filePath(path)
@@ -63,15 +79,15 @@ public class FreeVisitApplicationServiceImpl implements FreeVisitApplicationServ
         entity.setDocument(attachment);
         entity = repository.save(entity);
 
-        // 🔁 Находим всех преподавателей (с ролью TEACHER) и создаём записи согласования
-        List<SysUser> teachers = sysUserRepository.getAllByRolesAlias("TEACHER");
-        for (SysUser teacher : teachers) {
+        for (SysUser teacher : selectedTeachers) {
             FreeVisitApproval approval = FreeVisitApproval.builder()
                     .application(entity)
                     .teacher(teacher)
                     .status(FreeVisitApprovalStatus.PENDING)
                     .build();
             freeVisitApprovalRepository.save(approval);
+
+            customMailSender.sendNewFreeVisitNotificationToTeacher(teacher, student);
         }
 
         return FreeVisitApplicationResponseDto.from(entity, fileUtils);

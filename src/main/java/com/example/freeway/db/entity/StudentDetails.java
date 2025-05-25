@@ -35,10 +35,4 @@ public class StudentDetails {
     @JoinColumn(name = "advisor_id", nullable = false)
     SysUser advisor;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    StudentStatus status;
-
-    @Column(name = "balance")
-    BigDecimal balance;
 }

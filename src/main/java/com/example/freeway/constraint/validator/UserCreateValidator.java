@@ -121,12 +121,18 @@ public class UserCreateValidator implements ConstraintValidator<ValidUser, SysUs
             return false;
         }
 
+        int minLength = 6;
+        int maxLength = 12;
+
         int passwordLength = roles.stream()
                 .mapToInt(SysRole::getPasswordLength)
                 .max()
-                .orElse(8); // по умолчанию минимальная длина 8
+                .orElse(minLength);
 
-        String dynamicPattern = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{" + passwordLength + ",}$";
+        passwordLength = Math.min(passwordLength, maxLength);
+
+        String dynamicPattern = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{" + minLength + "," + passwordLength + "}$";
+
         if (!value.getPassword().matches(dynamicPattern)) {
             context.buildConstraintViolationWithTemplate("error.valid.password")
                     .addPropertyNode("password")

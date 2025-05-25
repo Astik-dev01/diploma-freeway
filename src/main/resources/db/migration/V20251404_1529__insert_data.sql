@@ -1,5 +1,5 @@
 INSERT INTO sys_roles (alias, name_ru, name_ky, password_length)
-VALUES ('SUPER_ADMIN', 'Супер Админ', 'Супер Админ', 18),
+VALUES ('SUPER_ADMIN', 'Супер Админ', 'Супер Админ', 12),
        ('STUDENT', 'Студент', 'Студент', 12),
        ('TEACHER', 'Учитель', 'Мугалим', 12),
        ('ADVISOR', 'Куратор', 'Куратор', 12);

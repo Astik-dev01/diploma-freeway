@@ -5,15 +5,12 @@ import com.example.freeway.db.entity.SysUser;
 import com.example.freeway.db.enums.MeetingStatus;
 import com.example.freeway.db.repository.MeetingRepository;
 import com.example.freeway.db.repository.SysUserRepository;
-import com.example.freeway.exception.BadRequestException;
-import com.example.freeway.exception.NotFoundException;
 import com.example.freeway.model.meeting.MeetingRequestDto;
 import com.example.freeway.model.meeting.MeetingResponseDto;
 import com.example.freeway.service.MeetingService;
 import com.example.freeway.service.SysUserService;
-import jakarta.transaction.Transactional;
+import com.example.freeway.util.CustomMailSender;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +23,8 @@ public class MeetingServiceImpl implements MeetingService {
     private final MeetingRepository meetingRepository;
     private final SysUserRepository sysUserRepository;
     private final SysUserService sysUserService;
+    private final CustomMailSender customMailSender;
+
 
     @Override
     public List<MeetingResponseDto> getMyMeetings() {
@@ -57,8 +56,9 @@ public class MeetingServiceImpl implements MeetingService {
                 .topic(dto.getTopic())
                 .status(MeetingStatus.PENDING)
                 .build();
-
-        return MeetingResponseDto.from(meetingRepository.save(meeting));
+        meeting = meetingRepository.save(meeting);
+        customMailSender.sendMeetingNotification(meeting, false, false);
+        return MeetingResponseDto.from(meeting);
     }
 
     @Override
@@ -67,6 +67,7 @@ public class MeetingServiceImpl implements MeetingService {
         meeting.setStatus(MeetingStatus.APPROVED);
         meeting.setComment(comment);
         meetingRepository.save(meeting);
+        customMailSender.sendMeetingNotification(meeting, true, false);
     }
 
     @Override
@@ -75,5 +76,6 @@ public class MeetingServiceImpl implements MeetingService {
         meeting.setStatus(MeetingStatus.REJECTED);
         meeting.setComment(comment);
         meetingRepository.save(meeting);
+        customMailSender.sendMeetingNotification(meeting, false, true);
     }
 }

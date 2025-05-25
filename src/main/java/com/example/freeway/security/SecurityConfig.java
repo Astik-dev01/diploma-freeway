@@ -1,12 +1,8 @@
 package com.example.freeway.security;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -22,7 +18,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
@@ -82,7 +77,9 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
+        config.setAllowedOrigins(List.of("https://freeway-edu.netlify.app"));
+//        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        //config.addAllowedOriginPattern("*");
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Auth-Token"));
         config.setExposedHeaders(List.of("X-Auth-Token"));
@@ -110,28 +107,30 @@ public class SecurityConfig {
                 "/files/**",
                 "/faculty/get-all",
                 "/user/get-all",
-                "/freeway/websocket-connection/**"
+                "/freeway/websocket-connection/**",
+                "/admin-panel/send-code",
+                "/admin-panel/verify-code"
         };
     }
 
-    @Bean
-    public JavaMailSender getJavaMailSender(@Value("${spring.mail.host}") String host,
-                                            @Value("${spring.mail.username}") String userName,
-                                            @Value("${spring.mail.password}") String password,
-                                            @Value("${spring.mail.properties.mail.smtp.port}") Short port) {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(host);
-        mailSender.setPort(port);
-
-        mailSender.setUsername(userName);
-        mailSender.setPassword(password);
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
-
-        return mailSender;
-    }
+//    @Bean
+//    public JavaMailSender getJavaMailSender(@Value("${spring.mail.host}") String host,
+//                                            @Value("${spring.mail.username}") String userName,
+//                                            @Value("${spring.mail.password}") String password,
+//                                            @Value("${spring.mail.properties.mail.smtp.port}") Short port) {
+//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+//        mailSender.setHost(host);
+//        mailSender.setPort(port);
+//
+//        mailSender.setUsername(userName);
+//        mailSender.setPassword(password);
+//
+//        Properties props = mailSender.getJavaMailProperties();
+//        props.put("mail.transport.protocol", "smtp");
+//        props.put("mail.smtp.auth", "true");
+//        props.put("mail.smtp.starttls.enable", "true");
+//        props.put("mail.debug", "true");
+//
+//        return mailSender;
+//    }
 }

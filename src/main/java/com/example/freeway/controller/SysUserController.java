@@ -41,7 +41,7 @@ public class SysUserController {
 
     @GetMapping("/teachers")
     public List<UserDto> getAllTeachers() {
-        return repository.findByRolesAlias("TEACHER")
+        return repository.findAllByRolesAlias("TEACHER")
                 .stream()
                 .map(UserDto::from)
                 .toList();

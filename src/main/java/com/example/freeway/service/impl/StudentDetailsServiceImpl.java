@@ -76,8 +76,6 @@ public class StudentDetailsServiceImpl implements StudentDetailsService {
                 .user(userRepository.findById(dto.getUserId()).orElseThrow())
                 .faculty(facultyRepository.findById(dto.getFacultyId()).orElseThrow())
                 .advisor(userRepository.findById(dto.getAdvisorId()).orElseThrow())
-                .status(dto.getStatus())
-                .balance(dto.getBalance())
                 .build();
     }
 }
