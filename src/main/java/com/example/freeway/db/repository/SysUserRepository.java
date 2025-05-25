@@ -5,6 +5,7 @@ import com.example.freeway.db.entity.SysUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,6 +23,9 @@ public interface SysUserRepository extends JpaRepository<SysUser, Long>, JpaSpec
     boolean existsByEmail(String email);
 
     Optional<SysUser> findByRolesAlias(String role);
+
+    @Query("SELECT u FROM SysUser u JOIN u.roles r WHERE r.alias = :role")
+    List<SysUser> findAllByRolesAlias(@Param("role") String role);
 
 
     Optional<SysUser> findByPhoneNumber(String phoneNumber);

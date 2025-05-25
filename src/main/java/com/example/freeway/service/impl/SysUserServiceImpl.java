@@ -17,7 +17,7 @@ import com.example.freeway.model.user.response.SysUserResponseDto;
 import com.example.freeway.service.SysLogRequestService;
 import com.example.freeway.service.SysUserService;
 import com.example.freeway.util.GsonConfig;
-import com.example.freeway.util.MailSender;
+import com.example.freeway.util.CustomMailSender;
 import com.google.gson.Gson;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +44,8 @@ public class SysUserServiceImpl implements SysUserService {
     private final BaseController baseController;
     private final SysRoleRepository rolesRepository;
     private final SysLogRequestService logService;
-    private final MailSender mailSender;
+    private final CustomMailSender customMailSender;
+    private final EmailVerificationService emailVerificationService;
 
     private final FacultyRepository facultyRepository;
     private final StudentDetailsRepository studentDetailsRepository;
@@ -92,7 +93,9 @@ public class SysUserServiceImpl implements SysUserService {
         if (roles.size() != userDto.getRoleIds().size()) {
             throw new NotFoundException("error.user.not_found.role");
         }
-
+        if (!emailVerificationService.verifyCode(userDto.getEmail(), userDto.getOtpCode())) {
+            throw new BadRequestException("Неверный или просроченный код подтверждения");
+        }
         Optional<SysUser> userOptional = repository.findByEmail(userDto.getEmail());
         SysUser user;
         if (userOptional.isPresent()) {
@@ -132,18 +135,11 @@ public class SysUserServiceImpl implements SysUserService {
                         .studentId(userDto.getStudentId())
                         .faculty(faculty)
                         .advisor(advisor)
-                        .status(userDto.getStatus())
-                        .balance(userDto.getBalance())
                         .build();
 
                 studentDetailsRepository.save(studentDetails);
             }
         }
-
-//        var accountActivation = new AccountActivation(user);
-//        accountActivationRepository.save(accountActivation);
-//
-//        mailSender.sendActivationLink(user.getEmail(), accountActivation.getActivationCode());
 
         userDto.setPassword(null);
         logService.saveSuccessToDb(
@@ -153,6 +149,8 @@ public class SysUserServiceImpl implements SysUserService {
                 request);
         return SysUserResponseDto.from(user);
     }
+
+
 
     @Override
     @Transactional
@@ -365,7 +363,7 @@ public class SysUserServiceImpl implements SysUserService {
         accountActivationRepository.deleteAll(allLinks);
         var accountActivation = accountActivationRepository.save(new AccountActivation(user));
 
-        mailSender.sendActivationLink(user.getEmail(), accountActivation.getActivationCode());
+     //   mailSender.sendActivationLink(user.getEmail(), accountActivation.getActivationCode());
 
         logService.saveSuccessToDb(
                 this.getClass().getSimpleName(),
@@ -395,7 +393,7 @@ public class SysUserServiceImpl implements SysUserService {
                 .max(Integer::compareTo)
                 .orElse(18);
 
-        mailSender.sendPasswordResetLink(user.getEmail(), token, passwordLength);
+     //   mailSender.sendPasswordResetLink(user.getEmail(), token, passwordLength);
     }
 
     public void validateToken(String token) {

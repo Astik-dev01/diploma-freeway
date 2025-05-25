@@ -1,7 +1,9 @@
 package com.example.freeway.controller;
 
 
+import com.example.freeway.db.repository.SysUserRepository;
 import com.example.freeway.model.BaseResponse;
+import com.example.freeway.model.chat.UserDto;
 import com.example.freeway.model.user.filter.UserFilterDto;
 import com.example.freeway.model.user.request.*;
 import com.example.freeway.model.user.response.PageSysUserDtoResponse;
@@ -24,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -34,6 +37,25 @@ import java.util.UUID;
 public class SysUserController {
 
     private final SysUserService service;
+    private final SysUserRepository repository;
+
+    @GetMapping("/teachers")
+    public List<UserDto> getAllTeachers() {
+        return repository.findAllByRolesAlias("TEACHER")
+                .stream()
+                .map(UserDto::from)
+                .toList();
+    }
+
+    @GetMapping("/students")
+    public List<UserDto> getAllStudents() {
+        return repository.findByRolesAlias("STUDENT")
+                .stream()
+                .map(UserDto::from)
+                .toList();
+    }
+
+
 
     @GetMapping("/{id}")
     @Operation(

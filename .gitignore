@@ -42,7 +42,7 @@ out/
 # Логи
 *.log
 *.log.*
-
+.env
 # macOS
 .DS_Store
 

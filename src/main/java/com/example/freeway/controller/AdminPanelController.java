@@ -10,6 +10,7 @@ import com.example.freeway.security.JwtUtil;
 import com.example.freeway.service.SysLogAuthorizationService;
 import com.example.freeway.service.SysLogRequestService;
 import com.example.freeway.service.SysUserService;
+import com.example.freeway.service.impl.EmailVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,7 @@ import java.util.Optional;
 @Setter
 @RequestMapping("/admin-panel")
 @Tag(name = "Админ панель", description = "Администрирование")
+@RequiredArgsConstructor
 public class AdminPanelController {
 
     private final BaseController baseController;
@@ -49,28 +52,25 @@ public class AdminPanelController {
     private final ErrorMessageRepository errorMessageRepository;
     private final SysUserService sysUserService;
     private final SysLogRequestService sysLogRequestService;
+    private final EmailVerificationService verificationService;
+
 
     @Value("${password.duration}")
     private String passwordDuration;
 
-    public AdminPanelController(
-            BaseController baseController,
-            AuthenticationManager authenticationManager,
-            JwtUtil jwtUtil,
-            UserDetailsService userDetailsService,
-            SysLogAuthorizationService ftSysLogsAuthorizationService,
-            ErrorMessageRepository errorMessageRepository,
-            SysUserService sysUserService,
-            SysLogRequestService sysLogRequestService
-    ) {
-        this.baseController = baseController;
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
-        this.logsAuthorizationService = ftSysLogsAuthorizationService;
-        this.errorMessageRepository = errorMessageRepository;
-        this.sysUserService = sysUserService;
-        this.sysLogRequestService = sysLogRequestService;
+
+    @PostMapping("/send-code")
+    public ResponseEntity<?> sendCode(@RequestParam String email) {
+        verificationService.sendVerificationCode(email);
+        return ResponseEntity.ok("Код отправлен");
+    }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestParam String email, @RequestParam String code) {
+        boolean result = verificationService.verifyCode(email, code);
+        return result
+                ? ResponseEntity.ok("Email подтвержден")
+                : ResponseEntity.badRequest().body("Неверный или просроченный код");
     }
 
     @PostMapping("/activation-link/{userId}")

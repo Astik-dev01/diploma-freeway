@@ -29,12 +29,5 @@ public class StudentDetailsRequestDto {
     @NotNull
     private Long advisorId;
 
-    @Schema(description = "Статус студента")
-    @NotNull
-    private StudentStatus status;
-
-    @Schema(description = "Баланс оплаты за обучение")
-    @NotNull
-    private BigDecimal balance;
 }
 

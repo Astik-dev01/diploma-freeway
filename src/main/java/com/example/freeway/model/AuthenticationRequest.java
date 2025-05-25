@@ -14,7 +14,7 @@ public class AuthenticationRequest {
     String username;
 
     @NotBlank
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$",
-            message = "error.valid.password")
+//    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{6,}$",
+//            message = "error.valid.password")
     String password;
 }

@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = UserCreateValidator.class)
 public @interface ValidUser {
 
-    String message() default "Invalid PIN";
+    String message() default "Invalid user data";
 
     Class<?>[] groups() default {};
 

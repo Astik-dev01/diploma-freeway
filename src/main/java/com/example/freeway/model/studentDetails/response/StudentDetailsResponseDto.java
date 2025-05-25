@@ -27,10 +27,6 @@ public class StudentDetailsResponseDto {
     @Schema(description = "Куратор студента")
     private SysUserResponseDto advisor;
 
-    private StudentStatus status;
-
-    private BigDecimal balance;
-
     public static StudentDetailsResponseDto from(StudentDetails entity) {
         return StudentDetailsResponseDto.builder()
                 .id(entity.getId())
@@ -38,8 +34,6 @@ public class StudentDetailsResponseDto {
                 .studentId(entity.getStudentId())
                 .faculty(FacultyResponseDto.from(entity.getFaculty()))
                 .advisor(SysUserResponseDto.from(entity.getAdvisor()))
-                .status(entity.getStatus())
-                .balance(entity.getBalance())
                 .build();
     }
 }
